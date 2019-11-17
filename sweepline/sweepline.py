@@ -1,6 +1,8 @@
 import sortedcontainers
 from enum import Enum
 
+epsilon = 10 ** (-5)
+
 
 def get_intersection_point(start1, end1, start2, end2):
     if start1[0] == end1[0] or start2[0] == end2[0]:
@@ -22,6 +24,26 @@ def get_intersection_point(start1, end1, start2, end2):
         return None
     else:
         return Point(Xa, Ya)
+
+
+class Ordering(Enum):
+    COUNTERCLOCKWISE = 1
+    COLLINEAR = 0
+    CLOCKWISE = -1
+
+
+def get_point_ordering(p1, p2, p3, epsilon):
+    ax, ay = p1.x, p1.y
+    bx, by = p2.x, p2.y
+    cx, cy = p3.x, p3.y
+    det = ax * by + bx * cy + ay * cx - by * cx - cy * ax - bx * ay
+
+    if abs(det) < epsilon:
+        return Ordering.COLLINEAR
+    elif det > epsilon:
+        return Ordering.COUNTERCLOCKWISE
+    else:
+        return Ordering.CLOCKWISE
 
 
 def verify_intersection(segment1, segment2):
@@ -64,10 +86,15 @@ class StatusSegmentWrapper:
         return self.segment
 
     def __lt__(self, other):
-        return self.segment.start_point.y < other.segment.start_point.y
+        if self.segment.start_point == other.segment.start_point:
+            ordering = get_point_ordering(self.segment.start_point, self.segment.end_point, other.segment.end_point, epsilon)
+            return ordering == Ordering.COUNTERCLOCKWISE
+
+        ordering = get_point_ordering(self.segment.start_point, self.segment.end_point, other.segment.start_point, epsilon)
+        return ordering == Ordering.COUNTERCLOCKWISE
 
     def __eq__(self, other):
-        return self.segment.start_point.y == other.segment.start_point.y
+        return self.segment.start_point.y == other.segment.start_point.y and self.segment.start_point.x == other.segment.start_point.x
 
 
 class EventType(Enum):
@@ -171,6 +198,19 @@ def sweep(segments):
 
             if intersection_point is not None and not event_queue.is_in_queue(intersection_point):
                 event_queue.add_intersect_event(intersection_point, lower_neighbour, upper_neighbour)
+        elif event.event_type == EventType.INTERSECT:
+            segment1, segment2 = involved_segments[0], involved_segments[1]
+            intersection_point = event.point
+            sweep_line.remove(segment1)
+            sweep_line.remove(segment2)
+            segment1.start_point = intersection_point
+            segment2.start_point = intersection_point
+            sweep_line.add(segment1)
+            sweep_line.add(segment2)
 
 
-sweep([Segment(Point(-11, 20), Point(100, 100)), Segment(Point(-5, 10), Point(10, 40))])
+sweep([
+    Segment(Point(-20, 40), Point(200, 100)),
+    Segment(Point(-5, 10), Point(140, 100)),
+    Segment(Point(0, 20), Point(20, 40))
+])
