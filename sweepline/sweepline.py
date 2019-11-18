@@ -172,6 +172,7 @@ def sweep(segments):
     event_queue = EventQueue()
     sweep_line = SweepLine()
     event_queue.bulk_add_segments(segments)
+    intersection_points = []
 
     while len(event_queue) > 0:
         event = event_queue.get_next()
@@ -199,6 +200,7 @@ def sweep(segments):
             if intersection_point is not None and not event_queue.is_in_queue(intersection_point):
                 event_queue.add_intersect_event(intersection_point, lower_neighbour, upper_neighbour)
         elif event.event_type == EventType.INTERSECT:
+            intersection_points.append(event.point)
             segment1, segment2 = involved_segments[0], involved_segments[1]
             intersection_point = event.point
             sweep_line.remove(segment1)
@@ -208,9 +210,4 @@ def sweep(segments):
             sweep_line.add(segment1)
             sweep_line.add(segment2)
 
-
-sweep([
-    Segment(Point(-20, 40), Point(200, 100)),
-    Segment(Point(-5, 10), Point(140, 100)),
-    Segment(Point(0, 20), Point(20, 40))
-])
+    return intersection_points
