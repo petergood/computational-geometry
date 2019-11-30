@@ -116,10 +116,36 @@ const getPointsInRectangularRange = (node, range) => {
     return res
 }
 
+const getPointsInRectangularRangeIter = (rootNode, range) => {
+    let queue = [rootNode]
+    let res = []
+
+    while (queue.length > 0) {
+        let node = queue.pop()
+        if (node.point != null && range.isPointIn(node.point)) {
+            res.push(node.point)
+        }
+
+        if (node.hasBeenPopulated) {
+            let children = [node.topLeftQuad, node.topRightQuad, node.bottomLeftQuad, node.bottomRightQuad]
+            for (let child of children) {
+                if (!range.doesOverlapWith(child.range)) {
+                    continue
+                }
+
+                queue.push(child)
+            }
+        }
+    }
+
+    return res
+}
+
 module.exports = {
     Point,
     RectangularRange,
     Node,
     insertPoint,
-    getPointsInRectangularRange
+    getPointsInRectangularRange,
+    getPointsInRectangularRangeIter
 }

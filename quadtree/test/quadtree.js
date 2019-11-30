@@ -53,6 +53,7 @@ describe('Node', function() {
         const q134 = node.topRightQuad.bottomLeftQuad.bottomRightQuad
         const q3 = node.bottomLeftQuad
 
+        assert.equal(null, node.point)
         assert.equal(-20, q2.point.x)
         assert.equal(-20, q3.point.x)
         assert.equal(3, q133.point.x)
@@ -69,17 +70,17 @@ describe('Node', function() {
         qt.insertPoint(node, new qt.Point(40, 10))
         qt.insertPoint(node, new qt.Point(50, 50))
         
-        const points1 = qt.getPointsInRectangularRange(node, new qt.RectangularRange(new qt.Point(-100, -100), new qt.Point(0, 0)))
+        const points1 = qt.getPointsInRectangularRangeIter(node, new qt.RectangularRange(new qt.Point(-100, -100), new qt.Point(0, 0)))
         assert.deepInclude(points1, new qt.Point(-20, -20))
 
-        const points2 = qt.getPointsInRectangularRange(node, new qt.RectangularRange(new qt.Point(-100, 0), new qt.Point(100, 100)))
+        const points2 = qt.getPointsInRectangularRangeIter(node, new qt.RectangularRange(new qt.Point(-100, 0), new qt.Point(100, 100)))
         assert.deepInclude(points2, new qt.Point(-20, 50))
         assert.deepInclude(points2, new qt.Point(3, 4))
         assert.deepInclude(points2, new qt.Point(40, 10))
         assert.deepInclude(points2, new qt.Point(60, 60))
         assert.deepInclude(points2, new qt.Point(50, 50))
 
-        const points3 = qt.getPointsInRectangularRange(node, new qt.RectangularRange(new qt.Point(49, 49), new qt.Point(51, 51)))
+        const points3 = qt.getPointsInRectangularRangeIter(node, new qt.RectangularRange(new qt.Point(49, 49), new qt.Point(51, 51)))
         assert.equal(1, points3.length)
         assert.deepInclude(points3, new qt.Point(50, 50))
     })
