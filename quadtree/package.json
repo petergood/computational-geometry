@@ -1,0 +1,16 @@
+{
+  "name": "quadtree",
+  "version": "1.0.0",
+  "description": "Quad Tree data structure implemented in JavaScript",
+  "main": "quadtree.js",
+  "scripts": {
+    "test": "mocha --require esm"
+  },
+  "author": "Peter Nicholson",
+  "license": "MIT",
+  "devDependencies": {
+    "chai": "^4.2.0",
+    "esm": "^3.2.25",
+    "mocha": "^6.2.2"
+  }
+}

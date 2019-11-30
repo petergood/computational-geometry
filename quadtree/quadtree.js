@@ -5,16 +5,27 @@ class Point {
     }
 }
 
-const isPointInRectangularRange = (point, bottomLeftPoint, topRightPoint) => {
-    return point.x >= bottomLeftPoint.x && point.x < topRightPoint.x 
-        && point.y >= bottomLeftPoint.y && point.y < topRightPoint.y
+class RectangularRange {
+    constructor(bottomLeftPoint, topRightPoint) {
+        this.bottomLeftPoint = bottomLeftPoint
+        this.topRightPoint = topRightPoint
+    }
+
+    doesOverlapWith(other) {
+        return this.bottomLeftPoint.x < other.topRightPoint.x && this.topRightPoint.x > other.bottomLeftPoint.x
+            && this.bottomLeftPoint.y < other.topRightPoint.y && this.topRightPoint.y > other.bottomLeftPoint.y
+    }
+
+    isPointIn(point) {
+        return point.x >= this.bottomLeftPoint.x && point.x < this.topRightPoint.x 
+            && point.y >= this.bottomLeftPoint.y && point.y < this.topRightPoint.y
+    }
 }
 
 class Node {
     constructor(bottomLeftPoint, topRightPoint) {
         this.point = null
-        this.bottomLeftPoint = bottomLeftPoint
-        this.topRightPoint = topRightPoint
+        this.range = new RectangularRange(bottomLeftPoint, topRightPoint)
         
         this.hasBeenPopulated = false
         this.topLeftQuad = null
@@ -24,8 +35,8 @@ class Node {
     }
 
     populateQuads() {
-        const tr = this.topRightPoint
-        const bl = this.bottomLeftPoint
+        const tr = this.range.topRightPoint
+        const bl = this.range.bottomLeftPoint
         const a = (tr.x - bl.x) / 2
         this.hasBeenPopulated = true
 
@@ -36,7 +47,7 @@ class Node {
     }
 
     isPointInRange(point) {
-        return isPointInRectangularRange(point, this.bottomLeftPoint, this.topRightPoint)
+        return this.range.isPointIn(point, this.bottomLeftPoint, this.topRightPoint)
     }
 
     insertIntoQuad(point) {
@@ -56,12 +67,8 @@ class Node {
     }
 }
 
-const bottomLeftPoint = new Point(-100, -100)
-const topRightPoint = new Point(100, 100)
-const rootNode = new Node(bottomLeftPoint, topRightPoint)
-
 const insertPoint = (node, point) => {
-    if (!isPointInRectangularRange(point, node.bottomLeftPoint, node.topRightPoint)) {
+    if (!node.isPointInRange(point)) {
         return
     }
 
@@ -82,4 +89,37 @@ const insertPoint = (node, point) => {
     insertPoint(node.topRightQuad, point)
     insertPoint(node.bottomLeftQuad, point)
     insertPoint(node.bottomRightQuad, point)
+}
+
+const getPointsInRectangularRange = (node, range) => {
+    if (!node.hasBeenPopulated && node.point == null) {
+        return []
+    }
+
+    if (!range.doesOverlapWith(node.range)) {
+        return []
+    }
+
+    if (!node.hasBeenPopulated && range.isPointIn(node.point)) {
+        return [ node.point ]
+    }
+
+    if (!node.hasBeenPopulated) {
+        return []
+    }
+
+    res = []
+    res = res.concat(getPointsInRectangularRange(node.topLeftQuad, range))
+    res = res.concat(getPointsInRectangularRange(node.topRightQuad, range))
+    res = res.concat(getPointsInRectangularRange(node.bottomLeftQuad, range))
+    res = res.concat(getPointsInRectangularRange(node.bottomRightQuad, range))
+    return res
+}
+
+module.exports = {
+    Point,
+    RectangularRange,
+    Node,
+    insertPoint,
+    getPointsInRectangularRange
 }
