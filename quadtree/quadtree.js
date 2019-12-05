@@ -67,6 +67,14 @@ class Node {
     }
 }
 
+const buildQuadTree = (bottomLeftPoint, topRightPoint, points) => {
+    const root = new Node(bottomLeftPoint, topRightPoint)
+    for (let point of points) {
+        insertPoint(root, point)
+    }
+    return root
+}
+
 const insertPoint = (node, point) => {
     if (!node.isPointInRange(point)) {
         return
@@ -147,5 +155,6 @@ module.exports = {
     Node,
     insertPoint,
     getPointsInRectangularRange,
-    getPointsInRectangularRangeIter
+    getPointsInRectangularRangeIter,
+    buildQuadTree
 }
